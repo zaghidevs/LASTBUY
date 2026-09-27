@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LAST</title>
+<meta name="description" content="Every buy resets the clock. Last buyer takes the pot.">
+
+<style>
+:root{
+  color-scheme:light;
+  --bg:#FFFFFF;--group:#F2F2F7;--label:#000;--label2:#8A8A8E;--sep:#E5E5EA;--red:#FF3B30;--green:#34C759;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--label);margin:0}
+body{font-family:var(--font);font-size:16px;line-height:1.45;letter-spacing:-.01em;padding-inline:20px;padding-block:0 64px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+button{font:inherit;cursor:pointer;letter-spacing:inherit}
+:focus-visible{outline:3px solid rgba(0,0,0,.25);outline-offset:2px;border-radius:8px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;font-weight:500;letter-spacing:0}
+[hidden]{display:none!important}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);margin-inline:-20px;padding:14px 20px;border-bottom:.5px solid var(--sep)}
+.bar{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.logo img{height:26px;width:auto;display:block}
+header nav{display:flex;gap:22px;font-size:14px;color:var(--label2);align-items:center}
+header nav a:hover{color:var(--label)}
+.xlink{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--group);margin-left:4px}
+.xlink:hover{background:#E5E5EA}
+.xlink img{width:14px;height:auto;display:block}
+
+.intro{padding-block:64px 32px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,5.4vw,56px);line-height:1.05;letter-spacing:-.035em;margin:0 0 14px;max-width:16ch;text-wrap:balance}
+.intro p{font-size:19px;color:var(--label2);margin:0;max-width:52ch;letter-spacing:-.015em}
+.ca{margin-top:22px;display:inline-flex;align-items:center;gap:10px;background:var(--group);border-radius:12px;padding:8px 8px 8px 14px;max-width:100%}
+.ca span{font-size:13px;color:var(--label2)}
+.ca code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ca button{border:0;background:#fff;border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;flex:0 0 auto}
+
+.card{background:var(--group);border-radius:22px;padding:28px;display:grid;grid-template-columns:1.25fr 1fr;gap:28px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.coin{font-weight:600;font-size:15px}
+.coin span{color:var(--label2);font-weight:400;margin-left:6px}
+.state{font-size:13px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:6px}
+.state::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.state.final{color:var(--red)}
+.state.idle{color:var(--label2)}
+.cap{font-size:13px;color:var(--label2);margin-top:22px}
+.clock{font-family:var(--display);font-weight:200;font-size:clamp(76px,12vw,128px);line-height:1;letter-spacing:-.04em;margin:2px 0 20px}
+.clock.final{color:var(--red)}
+.progress{position:relative;height:6px;border-radius:3px;background:rgba(0,0,0,.08)}
+.progress b{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--label);transition:width .9s linear}
+.clock.final + .progress b{background:var(--red)}
+.progress i{position:absolute;right:-2px;top:-5px;width:16px;height:16px;border-radius:4px;background:repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/8px 8px;box-shadow:0 0 0 1.5px #fff}
+.hint{font-size:13px;color:var(--label2);margin:14px 0 0}
+
+.side{display:grid;gap:14px;align-content:start}
+.list{background:var(--bg);border-radius:14px;overflow:hidden}
+.cell{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;position:relative;font-size:15px}
+.cell + .cell::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.cell .k{color:var(--label2)}
+.cell .v{font-weight:600}
+.cell .v.big{font-size:22px;letter-spacing:-.02em}
+.tower .cell{padding:10px 16px}
+.p{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:22px;border-radius:6px;background:rgba(118,118,128,.12);font-size:12px;font-weight:700;margin-right:10px}
+.lead .p{background:#000;color:#fff}
+.who{display:flex;align-items:center;min-width:0}
+.ago{font-size:13px;color:var(--label2);white-space:nowrap}
+.lead .ago{color:var(--label);font-weight:600}
+.btn{display:block;text-align:center;border:0;border-radius:12px;background:#000;color:#fff;padding:14px 18px;font-size:16px;font-weight:600;width:100%}
+.btn:active{opacity:.7}
+.small{font-size:12.5px;color:var(--label2);text-align:center;margin:-4px 0 0}
+
+section{padding-block:72px 0}
+h2{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--label2);margin:0 0 20px;max-width:58ch}
+.statsRow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--group);border-radius:18px;padding:6px;margin-bottom:14px}
+.statsRow div{background:var(--bg);border-radius:13px;padding:14px 16px}
+.statsRow span{display:block;font-size:12px;color:var(--label2)}
+.statsRow b{font-size:22px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.races{background:var(--group);border-radius:18px;padding:6px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px;background:var(--bg);border-radius:13px;overflow:hidden}
+th,td{padding:12px 16px;text-align:left;white-space:nowrap}
+td{border-top:.5px solid var(--sep)}
+th{font-size:12px;font-weight:500;color:var(--label2)}
+.r{text-align:right}
+td a{text-decoration:underline;text-decoration-color:var(--sep);text-underline-offset:3px}
+.empty{color:var(--label2);text-align:center;padding:22px}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.steps{background:var(--group);border-radius:18px;padding:6px;display:grid;gap:6px}
+.step{background:var(--bg);border-radius:13px;padding:14px 16px;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.step .n{width:24px;height:24px;border-radius:50%;background:#000;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step b{font-weight:600}
+.step p{margin:2px 0 0;color:var(--label2);font-size:14px}
+.grp{background:var(--group);border-radius:18px;padding:6px}
+.grp .list{border-radius:13px}
+dl{margin:0}dd{margin:0}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);background:#000;color:#fff;font-size:14px;font-weight:600;padding:10px 16px;border-radius:12px;transition:transform .3s,opacity .3s;z-index:9;opacity:0;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+footer{margin-top:72px;padding-top:20px;border-top:.5px solid var(--sep);color:var(--label2);font-size:12.5px;display:grid;gap:6px;max-width:78ch}
+footer p{margin:0}
+
+@media (max-width:820px){
+  .card{grid-template-columns:1fr;padding:22px}
+  .cols{grid-template-columns:1fr;gap:48px}
+}
+@media (max-width:480px){
+  header nav{gap:14px;font-size:13px}
+  .logo img{height:20px}
+  .statsRow{grid-template-columns:1fr 1fr}
+  .statsRow div:last-child{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:reduce){.progress b,.toast{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="logo" href="/" aria-label="LAST"><img src="logo-last.png" alt="LAST"></a>
+    <nav>
+      <a href="#results">Results</a>
+      <a href="#rules">Rules</a>
+      <a href="/docs">Docs</a>
+      <a class="xlink" id="xLink" href="https://x.com/" target="_blank" rel="noopener" aria-label="LAST on X"><img src="x-logo.png" alt=""></a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>Buy to take the lead. Lead at the flag, win the prize.</h1>
+    <p>Creator fees from every $LAST trade fill the prize. Every buy resets a 10-minute clock. When it runs out, the last buyer wins.</p>
+    <div class="ca" id="caBox" hidden><span>CA</span><code id="ca"></code><button type="button" id="copyCa">Copy</button></div>
+  </div>
+
+  <div class="card">
+    <div>
+      <div class="top">
+        <div class="coin">$LAST<span id="fRace">Race 1</span></div>
+        <div class="state idle" id="fState">Connecting</div>
+      </div>
+      <div class="cap" id="cap">Checkered flag in</div>
+      <div class="clock num" id="fClock">10:00</div>
+      <div class="progress"><b id="fBar" style="width:0%"></b><i></i></div>
+      <p class="hint" id="hint">Buy at least 0.1 SOL of $LAST to take the lead.</p>
+    </div>
+
+    <div class="side">
+      <div class="list">
+        <div class="cell"><span class="k">Prize</span><span class="v big num" id="fPot">— SOL</span></div>
+        <div class="cell"><span class="k">Winner gets</span><span class="v num" id="fWin">—</span></div>
+      </div>
+      <div class="list tower" id="tower"></div>
+      <a class="btn" id="buyBtn" href="#" target="_blank" rel="noopener">Take the lead on pump.fun</a>
+      <p class="small" id="minNote">Minimum 0.1 SOL per buy</p>
+    </div>
+  </div>
+
+  <section id="results">
+    <h2>Results</h2>
+    <p class="sub">Every finished race and its payout. Click any payout to check it on Solscan.</p>
+    <div class="statsRow">
+      <div><span>Races finished</span><b id="sRaces">0</b></div>
+      <div><span>Paid to winners</span><b id="sPaid">0 SOL</b></div>
+      <div><span>Prize wallet</span><b><a id="prizeLink" class="mono" href="#" target="_blank" rel="noopener">—</a></b></div>
+    </div>
+    <div class="races">
+      <table>
+        <thead><tr><th>Race</th><th>Winner</th><th class="r">Won</th><th class="r">Buys</th><th>Payout</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="5" class="empty">No races finished yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="cols">
+      <div>
+        <h2>How it works</h2>
+        <p class="sub">Races run back to back, forever.</p>
+        <div class="steps">
+          <div class="step"><span class="n">1</span><div><b>Fees fill the prize</b><p>Creator fees from every $LAST trade go to the prize wallet.</p></div></div>
+          <div class="step"><span class="n">2</span><div><b>Buy to take the lead</b><p>A buy of 0.1 SOL or more makes you the leader and resets the clock to 10:00.</p></div></div>
+          <div class="step"><span class="n">3</span><div><b>The flag drops</b><p>Ten minutes with no new leader ends the race.</p></div></div>
+          <div class="step"><span class="n">4</span><div><b>The leader wins</b><p>90% of the prize is sent to the leader's wallet automatically. 10% stays for the next race.</p></div></div>
+        </div>
+      </div>
+      <div>
+        <h2>Rules</h2>
+        <p class="sub">Every payout is public on-chain from the prize wallet.</p>
+        <div class="grp"><dl class="list">
+          <div class="cell"><dt class="k">Race clock</dt><dd class="v num">10:00</dd></div>
+          <div class="cell"><dt class="k">Minimum buy to lead</dt><dd class="v num">0.1 SOL</dd></div>
+          <div class="cell"><dt class="k">Sells</dt><dd class="v">No effect</dd></div>
+          <div class="cell"><dt class="k">Prize source</dt><dd class="v">100% of creator fees</dd></div>
+          <div class="cell"><dt class="k">Winner</dt><dd class="v num">90%</dd></div>
+          <div class="cell"><dt class="k">Next race</dt><dd class="v num">10%</dd></div>
+          <div class="cell"><dt class="k">Longest race</dt><dd class="v">24h, then 60s final lap</dd></div>
+          <div class="cell"><dt class="k">Payout</dt><dd class="v">Automatic, nothing to claim</dd></div>
+        </dl></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Memecoins are highly volatile and you can lose everything you put in. Being the leader doesn't guarantee a win. Prize mechanics may be restricted where you live.</p>
+    <p>Nothing on this site is financial advice.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const short=a=>a?a.slice(0,4)+"…"+a.slice(-4):"—";
+  const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+  const solf=n=>(n>=100?n.toFixed(1):n>=1?n.toFixed(2):n.toFixed(3))+" SOL";
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let S=null, skew=0, clock=600;
+
+  async function load(){
+    try{
+      const r=await fetch("/api/state",{cache:"no-store"});
+      S=await r.json(); skew=S.now-Date.now()/1000; clock=S.rules.clockSeconds;
+      renderStatic();
+    }catch(e){ $("fState").textContent="Reconnecting"; $("fState").className="state idle"; }
+  }
+
+  function renderStatic(){
+    if(S.mint){
+      $("caBox").hidden=false; $("ca").textContent=S.mint;
+      $("buyBtn").href="https://pump.fun/coin/"+S.mint; $("buyBtn").textContent="Take the lead on pump.fun";
+      $("hint").textContent="Buy at least "+S.rules.minBuySol+" SOL of $LAST to take the lead.";
+    }else{
+      $("caBox").hidden=true;
+      $("buyBtn").removeAttribute("href"); $("buyBtn").textContent="Launching soon";
+      $("hint").textContent="The first race starts with the first buy after launch.";
+    }
+    if(S.xUrl) $("xLink").href=S.xUrl;
+    $("minNote").textContent="Minimum "+S.rules.minBuySol+" SOL per buy";
+    $("fPot").textContent=solf(S.prizeSol);
+    $("fWin").textContent=solf(S.prizeSol*S.rules.winnerShare);
+    $("fRace").textContent="Race "+S.race.number;
+    $("sRaces").textContent=S.stats.races;
+    $("sPaid").textContent=solf(S.stats.paidSol);
+    if(S.prizeWallet){$("prizeLink").textContent=short(S.prizeWallet);$("prizeLink").href="https://solscan.io/account/"+S.prizeWallet;}
+
+    const cur=S.buys.filter(b=>b.race===S.race.number);
+    const seen=new Set(), order=[];
+    for(const b of cur){ if(!seen.has(b.wallet)){seen.add(b.wallet);order.push(b)} if(order.length===4)break; }
+    const now=Date.now()/1000+skew;
+    $("tower").innerHTML=order.length?order.map((b,i)=>
+      `<div class="cell${i===0?" lead":""}"><span class="who"><span class="p">P${i+1}</span><a class="mono" href="https://solscan.io/account/${esc(b.wallet)}" target="_blank" rel="noopener">${esc(short(b.wallet))}</a></span><span class="ago">${i===0?"Leader":ago(now-b.t)}</span></div>`).join("")
+      :`<div class="cell lead"><span class="who"><span class="p">P1</span><span class="ago">Open</span></span><span class="ago">Next buy leads</span></div>`;
+
+    $("rows").innerHTML=S.payouts.length?S.payouts.map(p=>
+      `<tr><td class="num">${p.race}</td><td><a class="mono" href="https://solscan.io/account/${esc(p.winner)}" target="_blank" rel="noopener">${esc(short(p.winner))}</a></td><td class="r num"><b>${solf(p.sol)}</b></td><td class="r num">${p.buys}</td><td>${p.signature&&p.signature!=="dry-run"?`<a class="mono" href="https://solscan.io/tx/${esc(p.signature)}" target="_blank" rel="noopener">${esc(short(p.signature))}</a>`:"—"}</td></tr>`).join("")
+      :`<tr><td colspan="5" class="empty">No races finished yet.</td></tr>`;
+    tick();
+  }
+  function ago(s){s=Math.max(0,Math.round(s));return s<60?s+"s ago":Math.floor(s/60)+"m ago"}
+
+  function tick(){
+    if(!S)return;
+    const st=$("fState"), cl=$("fClock");
+    if(!S.mint){st.textContent="Launching soon";st.className="state idle";cl.textContent=fmt(clock);$("fBar").style.width="0%";return}
+    const now=Date.now()/1000+skew, r=S.race;
+    if(S.settling.length){st.textContent="Paying winner";st.className="state";$("cap").textContent="Race "+S.settling[0]+" finished";cl.textContent="0:00";cl.classList.remove("final");$("fBar").style.width="100%";return}
+    $("cap").textContent="Checkered flag in";
+    if(!r.deadline){st.textContent="Waiting for first buy";st.className="state idle";cl.textContent=fmt(clock);cl.classList.remove("final");$("fBar").style.width="0%";return}
+    const left=r.deadline-now, final=left<=60;
+    cl.textContent=fmt(left); cl.classList.toggle("final",final);
+    st.textContent=left<=0?"Checking final buys":final?"Final minute":"Racing";
+    st.className="state"+(final?" final":"");
+    const len=Math.max(1,r.deadline-(r.lastBuyAt||r.deadline-clock));
+    $("fBar").style.width=Math.min(100,Math.max(0,(1-left/len)*100))+"%";
+  }
+
+  let tt;
+  $("copyCa").addEventListener("click",()=>{
+    const t=$("ca").textContent;
+    const done=()=>{$("toast").textContent="Contract address copied";$("toast").classList.add("show");clearTimeout(tt);tt=setTimeout(()=>$("toast").classList.remove("show"),1800)};
+    navigator.clipboard.writeText(t).then(done).catch(()=>{const r=document.createRange();r.selectNodeContents($("ca"));const s=getSelection();s.removeAllRanges();s.addRange(r)});
+  });
+
+  load(); setInterval(load,2000); setInterval(tick,250);
+})();
+</script>
+</body>
+</html>

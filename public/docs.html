@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LAST Docs</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#FFFFFF;--group:#F2F2F7;--label:#000;--label2:#8A8A8E;--sep:#E5E5EA;--red:#FF3B30;--green:#34C759;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--label);margin:0}
+body{font-family:var(--font);font-size:16px;line-height:1.6;letter-spacing:-.01em;padding-inline:20px;padding-block:0 80px;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+:focus-visible{outline:3px solid rgba(0,0,0,.25);outline-offset:2px;border-radius:8px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);margin-inline:-20px;padding:14px 20px;border-bottom:.5px solid var(--sep)}
+.bar{max-width:1040px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo img{height:26px;width:auto;display:block}
+.logo span{font-size:15px;color:var(--label2);font-weight:500}
+header nav{display:flex;gap:22px;font-size:14px;color:var(--label2);align-items:center}
+header nav a:hover,header nav a[aria-current]{color:var(--label)}
+.xlink{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--group);margin-left:4px}
+.xlink:hover{background:#E5E5EA}
+.xlink img{width:14px;height:auto;display:block}
+
+.layout{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:210px 1fr;gap:56px;padding-top:40px}
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 80px);align-self:start}
+aside .lbl{font-size:12px;color:var(--label2);font-weight:500;margin:0 0 8px 10px}
+aside ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+aside a{display:block;padding:6px 10px;border-radius:8px;font-size:14px;color:#3C3C43}
+aside a:hover{background:var(--group)}
+aside a.on{background:var(--group);color:var(--label);font-weight:600}
+
+main{min-width:0;max-width:680px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,4.6vw,44px);letter-spacing:-.035em;line-height:1.08;margin:0 0 12px}
+.lead{font-size:19px;color:var(--label2);margin:0 0 8px;letter-spacing:-.015em}
+article{padding-top:48px;scroll-margin-top:80px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.03em;margin:0 0 12px}
+h3{font-size:17px;font-weight:600;margin:24px 0 6px;letter-spacing:-.015em}
+p{margin:0 0 14px}
+ul.b{margin:0 0 14px;padding-left:20px}
+ul.b li{margin-bottom:6px}
+.muted{color:var(--label2)}
+code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;background:var(--group);padding:1px 6px;border-radius:5px}
+
+.grp{background:var(--group);border-radius:16px;padding:5px;margin:16px 0 18px}
+.list{background:var(--bg);border-radius:12px;overflow:hidden}
+.cell{display:flex;justify-content:space-between;gap:16px;padding:11px 16px;position:relative;font-size:15px}
+.cell + .cell::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.cell .k{color:var(--label2)}
+.cell .v{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+
+.steps{display:grid;gap:5px}
+.step{background:var(--bg);border-radius:12px;padding:13px 16px;display:grid;grid-template-columns:30px 1fr;gap:8px}
+.step .n{width:24px;height:24px;border-radius:50%;background:#000;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.step b{font-weight:600}
+.step p{margin:2px 0 0;color:var(--label2);font-size:15px}
+
+.callout{background:var(--group);border-radius:14px;padding:14px 16px;font-size:15px;margin:16px 0}
+.callout b{display:block;margin-bottom:2px}
+.callout.warn{background:#FFF1F0}
+.callout.warn b{color:var(--red)}
+
+.ex{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;text-align:left;white-space:nowrap;border-top:.5px solid var(--sep);font-variant-numeric:tabular-nums}
+th{border-top:0;font-size:12px;font-weight:500;color:var(--label2)}
+td.r,th.r{text-align:right}
+tr.win td{font-weight:600}
+
+details{background:var(--group);border-radius:14px;margin-bottom:8px}
+summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--label2);font-weight:400;font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 16px 14px;margin:0;color:#3C3C43;font-size:15px}
+
+footer{max-width:1040px;margin:72px auto 0;padding-top:20px;border-top:.5px solid var(--sep);color:var(--label2);font-size:12.5px}
+
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr;gap:0;padding-top:24px}
+  aside{position:static;margin-bottom:8px}
+  aside ul{display:flex;flex-wrap:wrap;gap:6px}
+  aside a{background:var(--group);padding:6px 12px;border-radius:999px;font-size:13px}
+  aside .lbl{margin-left:0}
+}
+@media (max-width:480px){
+  header nav{gap:14px;font-size:13px}
+  .logo img{height:20px}
+  .logo span{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="logo" href="/" aria-label="LAST home"><img src="/logo-last.png" alt="LAST"><span>Docs</span></a>
+    <nav>
+      <a href="/">App</a>
+      <a href="/docs" aria-current="page">Docs</a>
+      <a class="xlink" href="https://x.com/" target="_blank" rel="noopener" aria-label="LAST on X"><img src="/x-logo.png" alt=""></a>
+    </nav>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <p class="lbl">On this page</p>
+    <ul id="toc">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#race">How a race works</a></li>
+      <li><a href="#lead">Taking the lead</a></li>
+      <li><a href="#prize">The prize</a></li>
+      <li><a href="#example">Worked example</a></li>
+      <li><a href="#rules">Rules</a></li>
+      
+      <li><a href="#transparency">Transparency</a></li>
+      <li><a href="#risks">Risks</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <h1>LAST documentation</h1>
+    <p class="lead">How races run, how the prize is paid, and how to check it yourself.</p>
+
+    <article id="overview">
+      <h2>Overview</h2>
+      <p>LAST is a pump.fun coin, $LAST, that runs a race that never stops. The coin's creator fees build up a prize. Each qualifying buy makes the buyer the leader and resets a 10-minute clock. When the clock reaches zero, the leader wins the prize and a new race starts.</p>
+      <p>Nobody runs the races by hand. The LAST race bot watches every $LAST trade on Solana, keeps the clock, collects the creator fees into the prize wallet, and sends each winner their prize automatically.</p>
+    </article>
+
+    <article id="race">
+      <h2>How a race works</h2>
+      <div class="grp"><div class="steps">
+        <div class="step"><span class="n">1</span><div><b>Fees fill the prize</b><p>Every trade on the coin pays a creator fee. For $LAST, that fee goes to the prize wallet.</p></div></div>
+        <div class="step"><span class="n">2</span><div><b>Buy to take the lead</b><p>A buy of at least 0.1 SOL makes you the leader and sets the clock back to 10:00.</p></div></div>
+        <div class="step"><span class="n">3</span><div><b>The flag drops</b><p>If 10 minutes pass with no qualifying buy, the race ends. The leader at that moment is the winner.</p></div></div>
+        <div class="step"><span class="n">4</span><div><b>The prize is paid</b><p>90% of the prize goes to the winner's wallet. The other 10% becomes the starting prize for the next race.</p></div></div>
+      </div></div>
+      <p>Races run back to back for as long as $LAST trades. After a race is paid, the next race starts with the next qualifying buy.</p>
+    </article>
+
+    <article id="lead">
+      <h2>Taking the lead</h2>
+      <p>Only buys count, from anywhere: pump.fun, trading bots, or any app that trades $LAST. A buy takes the lead when it spends at least 0.1 SOL in a single transaction. Smaller buys still trade normally and still add creator fees to the prize, but they don't change the leader or the clock.</p>
+      <h3>Sells</h3>
+      <p>Selling never affects the race. You stay the leader even if you sell your tokens after buying. The race rewards the last buyer, not the biggest holder.</p>
+      <h3>Buys in the same block</h3>
+      <p>Solana orders transactions inside each block. When two qualifying buys land in the same block, the one ordered later becomes the leader.</p>
+      <h3>Buying right at zero</h3>
+      <p>The clock uses on-chain block time. A buy only counts for a race if its block time is before the clock reaches zero. A buy that lands after zero starts the next race instead.</p>
+    </article>
+
+    <article id="prize">
+      <h2>The prize</h2>
+      <p>The prize is the SOL balance of the prize wallet, which is also the creator of $LAST. Its address is on the home page, and you can check its balance and every transaction on Solscan at any time.</p>
+      <div class="grp"><div class="list">
+        <div class="cell"><span class="k">Where it comes from</span><span class="v">100% of $LAST creator fees</span></div>
+        <div class="cell"><span class="k">Winner receives</span><span class="v">90%</span></div>
+        <div class="cell"><span class="k">Carried to next race</span><span class="v">10%</span></div>
+        <div class="cell"><span class="k">Kept for network fees</span><span class="v">0.05 SOL</span></div>
+      </div></div>
+      <h3>How payout happens</h3>
+      <p>When the clock hits zero, the bot waits 20 seconds to catch any buys that landed just before the deadline. Then it collects the latest creator fees and sends 90% of the prize wallet's balance straight to the winner's wallet. There's nothing to claim.</p>
+      <p>Every payout is listed in Results on the home page with a link to its transaction.</p>
+    </article>
+
+    <article id="example">
+      <h2>Worked example</h2>
+      <p>A sample race on $LAST. The prize starts at 1.20 SOL carried over from the last race.</p>
+      <div class="grp"><div class="list ex">
+        <table>
+          <thead><tr><th>Time</th><th>Event</th><th>Leader</th><th class="r">Clock</th></tr></thead>
+          <tbody>
+            <tr><td>12:00:00</td><td>Wallet A buys 0.5 SOL</td><td>A</td><td class="r">10:00</td></tr>
+            <tr><td>12:04:10</td><td>Wallet B buys 0.05 SOL</td><td>A</td><td class="r">5:50</td></tr>
+            <tr><td>12:07:30</td><td>Wallet C buys 0.2 SOL</td><td>C</td><td class="r">10:00</td></tr>
+            <tr><td>12:12:00</td><td>Wallet A sells everything</td><td>C</td><td class="r">5:30</td></tr>
+            <tr><td>12:17:28</td><td>Wallet D buys 1 SOL</td><td>D</td><td class="r">10:00</td></tr>
+            <tr class="win"><td>12:27:28</td><td>Clock hits zero</td><td>D wins</td><td class="r">0:00</td></tr>
+          </tbody>
+        </table>
+      </div></div>
+      <p class="muted">B's buy was under 0.1 SOL, so it didn't reset the clock. A's sell didn't affect the race. If fees during the race brought the prize to 3.00 SOL, D receives 2.70 SOL and the next race starts with 0.30 SOL.</p>
+    </article>
+
+    <article id="rules">
+      <h2>Rules</h2>
+      <p>These are the rules the race bot runs on.</p>
+      <div class="grp"><div class="list">
+        <div class="cell"><span class="k">Race clock</span><span class="v">10:00</span></div>
+        <div class="cell"><span class="k">Minimum buy to lead</span><span class="v">0.1 SOL</span></div>
+        <div class="cell"><span class="k">Sells</span><span class="v">No effect</span></div>
+        <div class="cell"><span class="k">Winner's share</span><span class="v">90%</span></div>
+        <div class="cell"><span class="k">Carried to next race</span><span class="v">10%</span></div>
+        <div class="cell"><span class="k">Longest race</span><span class="v">24 hours</span></div>
+        <div class="cell"><span class="k">After 24 hours</span><span class="v">Clock resets to 60s instead of 10:00</span></div>
+      </div></div>
+      <h3>Why there's a 24-hour limit</h3>
+      <p>Without a limit, a busy coin could keep one race going for days while the prize grows. After 24 hours, each buy only resets the clock to 60 seconds, so the race ends soon after trading slows down.</p>
+    </article>
+
+    <article id="transparency">
+      <h2>Transparency</h2>
+      <p>You don't have to trust the site's numbers. Everything can be checked on-chain.</p>
+      <div class="grp"><div class="list">
+        <div class="cell"><span class="k">Prize wallet</span><span class="v">Listed on the home page</span></div>
+        <div class="cell"><span class="k">Leader changes</span><span class="v">Public $LAST buys</span></div>
+        <div class="cell"><span class="k">Payouts</span><span class="v">Public transfers from the prize wallet</span></div>
+      </div></div>
+      <p>To check a race yourself, look at the last $LAST buy of 0.1 SOL or more before the clock ran out, then find the payout to that wallet from the prize wallet.</p>
+      <div class="callout"><b>Who holds the prize wallet</b>The prize wallet is run by the LAST race bot, and the LAST team holds its key. The bot has no way to send the prize anywhere except to race winners, and every transaction from the wallet is public.</div>
+    </article>
+
+    <article id="risks">
+      <h2>Risks</h2>
+      <div class="callout warn"><b>Read this before you buy</b>Memecoins are highly volatile. You can lose everything you put in, even while trying to win a race.</div>
+      <ul class="b">
+        <li><b>Being outbid.</b> Buying to take the lead doesn't mean you'll win. Someone can buy after you in the last seconds, and most leaders don't win.</li>
+        <li><b>Token price.</b> A winning buy still leaves you holding tokens, which can drop in value faster than the prize makes up for.</li>
+        <li><b>Bots.</b> Automated traders can watch the clock and buy in the final seconds. The minimum buy and the 24-hour limit reduce this but don't stop it.</li>
+        <li><b>Bot downtime.</b> If the race bot goes offline, payouts are delayed until it's back. Buys made while it's offline still count, because it reads them from the chain when it restarts.</li>
+        <li><b>Network issues.</b> If Solana is congested, your buy may land late or fail.</li>
+        <li><b>Custody.</b> The prize is held in a wallet controlled by the LAST team's bot, not a smart contract.</li>
+        <li><b>Your location.</b> Prize mechanics may be restricted where you live. You're responsible for following your local laws.</li>
+      </ul>
+    </article>
+
+    <article id="faq">
+      <h2>FAQ</h2>
+      <details><summary>Where do I buy?</summary><p>Anywhere $LAST trades. The Take the lead button opens it on pump.fun, but buys from trading bots and other apps count too.</p></details>
+      <details><summary>Do I have to hold the coin to win?</summary><p>No. The winner is the wallet that made the last qualifying buy. What you do with the tokens afterwards doesn't matter.</p></details>
+      <details><summary>What happens if nobody buys at all?</summary><p>The clock only starts with the first qualifying buy. Until then, the prize waits in the wallet.</p></details>
+      <details><summary>How do I know the payouts are real?</summary><p>Every payout links to its Solana transaction. You can also open the prize wallet on Solscan and see every transfer it has ever made.</p></details>
+      <details><summary>Does LAST charge a fee?</summary><p>LAST takes nothing from prizes. Normal pump.fun trading fees and Solana network fees still apply.</p></details>
+      <details><summary>Can I win more than once?</summary><p>Yes. There's no limit on how many races a wallet can win.</p></details>
+      <details><summary>How fast is the prize paid?</summary><p>Usually within a minute of the clock hitting zero, including the 20-second wait for late buys.</p></details>
+    </article>
+  </main>
+</div>
+
+<footer>Memecoins are highly volatile and you can lose everything you put in. Nothing here is financial advice.</footer>
+
+<script>
+(function(){
+  const links=[...document.querySelectorAll('#toc a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  function spy(){
+    let i=0;secs.forEach((s,k)=>{if(s.getBoundingClientRect().top<140)i=k});
+    links.forEach((a,k)=>a.classList.toggle('on',k===i));
+  }
+  addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+</body>
+</html>
