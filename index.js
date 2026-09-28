@@ -53,6 +53,13 @@ function save() {
 let wallet = null;
 try { if (env.PRIZE_WALLET_PRIVATE_KEY) wallet = loadKeypair(env.PRIZE_WALLET_PRIVATE_KEY); }
 catch (e) { log("PRIZE_WALLET_PRIVATE_KEY is invalid:", e.message); }
+// Optional: the wallet that creates the coin on pump.fun. It receives the
+// creator fees; the bot claims them and forwards exactly the claimed amount
+// to the prize wallet. Without it, the prize wallet is the creator.
+let devWallet = null;
+try { if (env.DEV_WALLET_PRIVATE_KEY) devWallet = loadKeypair(env.DEV_WALLET_PRIVATE_KEY); }
+catch (e) { log("DEV_WALLET_PRIVATE_KEY is invalid:", e.message); }
+const creator = () => devWallet || wallet;
 const rpc = cfg.rpcUrl ? makeRpc(cfg.rpcUrl) : null;
 
 const ready = !!(rpc && wallet);
@@ -92,18 +99,46 @@ async function claimFees() {
   lastClaimAt = Date.now();
   if (cfg.dryRun) { log("[dry run] would claim creator fees"); return; }
   try {
+    const c = creator();
     const res = await fetch("https://pumpportal.fun/api/trade-local", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ publicKey: wallet.address, action: "collectCreatorFee", priorityFee: 0.00001, pool: "pump" }),
+      body: JSON.stringify({ publicKey: c.address, action: "collectCreatorFee", priorityFee: 0.00001, pool: "pump" }),
     });
-    if (res.status !== 200) { log("Fee claim skipped:", res.status, (await res.text()).slice(0, 200)); return; }
-    const { tx, signature } = signSerialized(new Uint8Array(await res.arrayBuffer()), wallet);
-    const result = await sendAndConfirm(tx, signature);
-    log("Fee claim", result, signature);
+    if (res.status !== 200) { log("Fee claim skipped:", res.status, (await res.text()).slice(0, 200)); }
+    else {
+      const { tx, signature } = signSerialized(new Uint8Array(await res.arrayBuffer()), c);
+      const result = await sendAndConfirm(tx, signature);
+      log("Fee claim", result, signature);
+      if (result === "confirmed" && devWallet) {
+        // Exactly what the claim added to the dev wallet (after its network fee).
+        const t = await rpc("getTransaction", [signature, { encoding: "json", commitment: "confirmed", maxSupportedTransactionVersion: 0 }]);
+        const gain = t ? t.meta.postBalances[0] - t.meta.preBalances[0] : 0;
+        if (gain > 0) state.owedLamports = (state.owedLamports || 0) + gain;
+        save();
+      }
+    }
   } catch (e) {
     log("Fee claim failed (usually means nothing to claim):", e.message);
   }
+  if (devWallet) await forwardFees();
+}
+
+// Send claimed creator fees from the dev wallet to the prize wallet.
+async function forwardFees() {
+  const owed = state.owedLamports || 0;
+  if (owed < 100000) return; // under 0.0001 SOL, wait for more
+  try {
+    const amount = owed - 10000; // leaves room for the transfer's own fee
+    const bh = await rpc("getLatestBlockhash", [{ commitment: "confirmed" }]);
+    const { tx, signature } = buildTransfer({ payer: devWallet, to: wallet.address, lamports: amount, blockhash: bh.value.blockhash });
+    const r = await sendAndConfirm(tx, signature, bh.value.lastValidBlockHeight);
+    if (r === "confirmed") {
+      state.owedLamports = 0;
+      save();
+      log(`Forwarded ${sol(amount)} SOL of creator fees to the prize wallet: ${signature}`);
+    } else log("Fee forward did not land, will retry");
+  } catch (e) { log("Fee forward failed, will retry:", e.message); }
 }
 
 async function refreshPrize() {
@@ -211,7 +246,7 @@ async function poll() {
     const txs = await Promise.all(batch.map((s) => s.err ? null :
       rpc("getTransaction", [s.signature, { encoding: "json", commitment: "confirmed", maxSupportedTransactionVersion: 0 }])));
     batch.forEach((s, k) => {
-      const buy = R.classifyTx(txs[k], state.mint, wallet.address);
+      const buy = R.classifyTx(txs[k], state.mint, [wallet.address, devWallet && devWallet.address]);
       if (buy) {
         const t = s.blockTime || (txs[k] && txs[k].blockTime) || Math.floor(Date.now() / 1000);
         if (R.applyBuy(state, cfg, { ...buy, sig: s.signature, t })) {
@@ -231,16 +266,16 @@ async function poll() {
 const PUMP_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
 async function waitForLaunch() {
   status.message = "Waiting for launch";
-  log("No MINT set. Waiting for the prize wallet to create a coin on pump.fun...");
+  log(`No MINT set. Waiting for ${devWallet ? "the dev wallet" : "the prize wallet"} (${creator().address}) to create a coin on pump.fun...`);
   const checked = new Set();
   for (;;) {
     try {
-      const sigs = await rpc("getSignaturesForAddress", [wallet.address, { limit: 15, commitment: "confirmed" }]);
+      const sigs = await rpc("getSignaturesForAddress", [creator().address, { limit: 15, commitment: "confirmed" }]);
       for (const s of sigs) {
         if (s.err || checked.has(s.signature)) continue;
         checked.add(s.signature);
         const tx = await rpc("getTransaction", [s.signature, { encoding: "json", commitment: "confirmed", maxSupportedTransactionVersion: 0 }]);
-        const mint = R.detectCreatedMint(tx, wallet.address, PUMP_PROGRAM);
+        const mint = R.detectCreatedMint(tx, creator().address, PUMP_PROGRAM);
         if (mint) {
           state = R.newState(mint);
           state.lastSig = "none"; // read the coin's whole (seconds-long) history
@@ -271,7 +306,7 @@ async function testPayout(to) {
 
 async function loop() {
   if (!ready) { log("Not running:", status.message); return; }
-  log(`LAST bot. Prize wallet ${wallet.address}.${cfg.dryRun ? " DRY RUN: no transactions will be sent." : ""}`);
+  log(`LAST bot. Prize wallet ${wallet.address}.${devWallet ? " Dev wallet " + devWallet.address + "." : ""}${cfg.dryRun ? " DRY RUN: no transactions will be sent." : ""}`);
   if (env.TEST_PAYOUT_TO) await testPayout(env.TEST_PAYOUT_TO.trim());
   if (!state.mint) await waitForLaunch();
   log("Race running for", state.mint);
